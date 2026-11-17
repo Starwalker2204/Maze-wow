@@ -1,0 +1,3086 @@
+<html>
+<head>
+<title>Ronins amazing wonderful wowow super cool maze game (FOR KIDS!!!!!!!!!!!!!)</title>
+
+
+
+<style>
+* {
+    box-sizing: border-box;
+}
+
+html, body {
+    margin: 0;
+    padding: 0;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    background: #000;
+    font-family: Arial, sans-serif;
+}
+
+
+canvas {
+    display: block;
+    width: 100%;
+    height: 100%;
+    cursor: crosshair;
+}
+
+#instructions {
+    position: absolute;
+    top: 10px;
+    left: 50%;
+    transform: translateX(-50%);
+    color: #ddd;
+    background: rgba(0,0,0,.8);
+    padding: 10px 18px;
+    border-radius: 5px;
+    font-size: 14px;
+    text-align: center;
+    border: 1px solid #555;
+    z-index: 2;
+    white-space: nowrap;
+}
+
+#settingsMenu {
+    display: none;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 340px;
+    padding: 25px;
+    background: rgba(15, 15, 15, 0.97);
+    color: white;
+    border: 2px solid #666;
+    border-radius: 12px;
+    z-index: 10;
+    box-shadow: 0 0 30px rgba(0,0,0,0.8);
+}
+
+#settingsMenu h2 {
+    text-align: center;
+    margin-top: 0;
+    margin-bottom: 25px;
+}
+
+.setting {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin: 18px 0;
+    font-size: 15px;
+}
+
+.setting input[type="color"] {
+    width: 55px;
+    height: 32px;
+    border: none;
+    background: transparent;
+    cursor: pointer;
+}
+
+.setting input[type="checkbox"] {
+    width: 20px;
+    height: 20px;
+    cursor: pointer;
+}
+
+.setting select {
+    width: 150px;
+    padding: 8px;
+    background: #333;
+    color: white;
+    border: 1px solid #777;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+#closeSettings {
+    width: 100%;
+    padding: 10px;
+    margin-top: 15px;
+    background: #444;
+    color: white;
+    border: 1px solid #777;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 15px;
+}
+
+#closeSettings:hover {
+    background: #666;
+}
+
+/* ======================================
+   MAZE MAP
+====================================== */
+
+#mazeMap {
+    display: none;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: min(85vw, 700px);
+    height: min(85vh, 700px);
+    padding: 12px;
+    background: rgba(0, 0, 0, 0.92);
+    border: 2px solid #555;
+    border-radius: 10px;
+    z-index: 20;
+}
+
+#mapCanvas {
+    width: 100%;
+    height: 100%;
+    display: block;
+    image-rendering: pixelated;
+}
+
+<style>
+
+
+/* SETTINGS MENU */
+
+#settingsMenu {
+    display: none;
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+
+    width: min(420px, 94vw);
+    max-height: 85vh;
+    overflow-y: auto;
+
+    padding: 20px;
+    background: rgba(15, 15, 15, 0.97);
+    color: white;
+    border: 2px solid #666;
+    border-radius: 12px;
+    z-index: 10;
+    box-shadow: 0 0 30px rgba(0,0,0,0.8);
+}
+
+#settingsMenu h2 {
+    text-align: center;
+    margin-top: 0;
+    margin-bottom: 25px;
+}
+
+.setting {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin: 18px 0;
+    font-size: 15px;
+}
+
+.setting input[type="color"] {
+    width: 55px;
+    height: 32px;
+    border: none;
+    background: transparent;
+    cursor: pointer;
+}
+
+.setting input[type="checkbox"] {
+    width: 20px;
+    height: 20px;
+    cursor: pointer;
+}
+
+#closeSettings {
+    width: 100%;
+    padding: 10px;
+    margin-top: 15px;
+    background: #444;
+    color: white;
+    border: 1px solid #777;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 15px;
+}
+
+#closeSettings:hover {
+    background: #666;
+}
+</style>
+
+</head>
+
+<body>
+
+
+<div id="instructions">
+<b>WASD</b> Move |
+<b>SHIFT</b> Sprint |
+<b>Mouse</b> Look |
+<b>Scroll</b> Zoom |
+<b>E</b> Add Wall |
+<b>Q</b> Remove |
+<b>F</b> Spawn Cube |
+<b>L</b> Settings |
+<b>M</b> Map |
+<b>CTRL ×2</b> Expansion |
+<b>ALT ×2</b> Editor Mode |
+<b>CTRL + ALT</b> Reset |
+<b>ESC</b> Release Mouse
+</div>
+
+
+
+
+<div id="settingsMenu">
+
+    <h2>⚙ Settings</h2>
+
+    <div class="setting">
+        <label for="materialSelect">Wall Material</label>
+        <select id="materialSelect">
+            <option value="brick">Brick</option>
+            <option value="concrete">Concrete</option>
+            <option value="smiley">Smiley Faces</option>
+            <option value="wood">Wood Boards 🤤</option>
+            <option value="carpet">White Carpet 🤤 (Or stone)</option>
+            <option value="marble">White Marble</option>
+        </select>
+    </div>
+
+    <div class="setting">
+        <label for="floorMaterialSelect">Floor Material</label>
+        <select id="floorMaterialSelect">
+            <option value="plain">Plain</option>
+            <option value="brick">Brick</option>
+            <option value="concrete">Concrete</option>
+            <option value="smiley">Smiley Faces</option>
+            <option value="wood">Wood Boards 🤤</option>
+            <option value="carpet">White Carpet 🤤 (Or stone)</option>
+            <option value="marble">Marble</option>
+        </select>
+    </div>
+
+<div class="setting">
+    <label for="ceilingMaterialSelect">Ceiling Material</label>
+    <select id="ceilingMaterialSelect">
+        <option value="plain">Plain</option>
+        <option value="brick">Brick</option>
+        <option value="concrete">Concrete</option>
+        <option value="smiley">Smiley Faces</option>
+        <option value="wood">Wood Boards 🤤</option>
+        <option value="carpet">White Carpet 🤤 (Or stone)</option>
+        <option value="marble">Marble</option>
+    </select>
+</div>
+
+<div class="setting">
+    <label for="ceilingHeightSlider">Ceiling Height</label>
+    <input
+        type="range"
+        id="ceilingHeightSlider"
+        min="1"
+        max="10"
+        step="0.1"
+        value="3"
+    >
+    <span id="ceilingHeightValue">3</span>
+</div>
+
+    <div class="setting">
+        <label for="fogStrength">Fog Strength</label>
+        <input type="range" id="fogStrength"
+               min="0" max="100" value="0">
+        <span id="fogValue">0%</span>
+    </div>
+
+    <!-- DISTANCE DARKNESS SETTINGS -->
+
+<div class="setting">
+    <label for="wallDarknessToggle">Wall Darkness</label>
+    <input type="checkbox" id="wallDarknessToggle" checked>
+</div>
+
+<div class="setting">
+    <label for="wallDarknessStrength">Wall Darkness Strength</label>
+    <input type="range" id="wallDarknessStrength" min="0" max="100" value="85">
+    <span id="wallDarknessValue">85%</span>
+</div>
+
+<div class="setting">
+    <label for="wallDarknessColor">Wall Darkness Color</label>
+    <input type="color" id="wallDarknessColor" value="#000000">
+</div>
+
+<div class="setting">
+    <label for="floorDarknessToggle">Floor Darkness</label>
+    <input type="checkbox" id="floorDarknessToggle" checked>
+</div>
+
+<div class="setting">
+    <label for="floorDarknessStrength">Floor Darkness Strength</label>
+    <input type="range" id="floorDarknessStrength" min="0" max="100" value="85">
+    <span id="floorDarknessValue">85%</span>
+</div>
+
+<div class="setting">
+    <label for="floorDarknessColor">Floor Darkness Color</label>
+    <input type="color" id="floorDarknessColor" value="#000000">
+</div>
+
+<div class="setting">
+    <label for="ceilingDarknessToggle">Ceiling Darkness</label>
+    <input type="checkbox" id="ceilingDarknessToggle" checked>
+</div>
+
+<div class="setting">
+    <label for="ceilingDarknessStrength">Ceiling Darkness Strength</label>
+    <input type="range" id="ceilingDarknessStrength" min="0" max="100" value="85">
+    <span id="ceilingDarknessValue">85%</span>
+</div>
+
+<div class="setting">
+    <label for="ceilingDarknessColor">Ceiling Darkness Color</label>
+    <input type="color" id="ceilingDarknessColor" value="#000000">
+</div>
+
+
+    <div class="setting">
+        <label for="textureToggle">Wall Texture</label>
+        <input type="checkbox" id="textureToggle" checked>
+    </div>
+
+    <div class="setting">
+        <label for="wallColor">Wall Color</label>
+        <input type="color" id="wallColor" value="#ffffff">
+    </div>
+
+    <div class="setting">
+        <label for="floorColor">Floor Color</label>
+        <input type="color" id="floorColor" value="#1a1a1a">
+    </div>
+
+    <div class="setting">
+        <label for="ceilingColor">Ceiling Color</label>
+        <input type="color" id="ceilingColor" value="#111111">
+    </div>
+
+    <!-- MAZE GENERATOR SETTINGS -->
+
+    <div class="setting">
+        <label for="mazeWidth">Maze Width</label>
+        <input type="number" id="mazeWidth"
+               min="7" max="101" value="21"
+               style="width:75px;">
+    </div>
+
+    <div class="setting">
+        <label for="mazeHeight">Maze Height</label>
+        <input type="number" id="mazeHeight"
+               min="7" max="101" value="21"
+               style="width:75px;">
+    </div>
+
+    <div class="setting">
+        <label for="cubeToggle">Show Floating Cubes</label>
+        <input type="checkbox" id="cubeToggle" checked>
+    </div>
+
+    <button id="generateMaze"
+    style="
+        width:100%;
+        padding:12px;
+        margin-top:15px;
+        background:#555;
+        color:white;
+        border:1px solid #888;
+        border-radius:6px;
+        cursor:pointer;
+        font-size:15px;
+    ">
+        🎲 Generate Maze
+    </button>
+
+    <button id="closeSettings">Close</button>
+
+</div>
+
+<div id="mazeMap">
+    <canvas id="mapCanvas"></canvas>
+</div>
+
+<canvas id="gameCanvas"></canvas>
+
+
+<script>
+
+// ======================================
+// CANVAS
+// ======================================
+
+var canvas = document.getElementById("gameCanvas");
+var ctx = canvas.getContext("2d");
+
+var screenWidth = 0;
+var screenHeight = 0;
+
+function resizeCanvas() {
+    screenWidth = document.documentElement.clientWidth;
+    screenHeight = document.documentElement.clientHeight;
+
+    canvas.width = screenWidth;
+    canvas.height = screenHeight;
+}
+
+window.onresize = resizeCanvas;
+resizeCanvas();
+
+
+
+// ======================================
+// WALL MATERIAL GENERATOR
+// ======================================
+
+function createMaterialCanvas() {
+
+    var c = document.createElement("canvas");
+    c.width = 128;
+    c.height = 128;
+
+    return c;
+}
+
+var materials = {};
+
+
+// ======================================
+// 1. BRICK MATERIAL
+// ======================================
+
+materials.brick = createMaterialCanvas();
+
+var brickCtx = materials.brick.getContext("2d");
+
+brickCtx.fillStyle = "#777777";
+brickCtx.fillRect(0, 0, 128, 128);
+
+brickCtx.strokeStyle = "#222222";
+brickCtx.lineWidth = 3;
+
+for (var y = 0; y <= 128; y += 32) {
+
+    brickCtx.beginPath();
+    brickCtx.moveTo(0, y);
+    brickCtx.lineTo(128, y);
+    brickCtx.stroke();
+}
+
+for (var x = 0; x <= 128; x += 64) {
+
+    brickCtx.beginPath();
+    brickCtx.moveTo(x, 0);
+    brickCtx.lineTo(x, 32);
+    brickCtx.stroke();
+
+    brickCtx.beginPath();
+    brickCtx.moveTo(x + 32, 32);
+    brickCtx.lineTo(x + 32, 64);
+    brickCtx.stroke();
+
+    brickCtx.beginPath();
+    brickCtx.moveTo(x, 64);
+    brickCtx.lineTo(x, 96);
+    brickCtx.stroke();
+
+    brickCtx.beginPath();
+    brickCtx.moveTo(x + 32, 96);
+    brickCtx.lineTo(x + 32, 128);
+    brickCtx.stroke();
+}
+
+// Brick noise
+
+var brickData = brickCtx.getImageData(0, 0, 128, 128);
+
+for (var i = 0; i < brickData.data.length; i += 4) {
+
+    var noise = (Math.random() - 0.5) * 35;
+
+    brickData.data[i] += noise;
+    brickData.data[i + 1] += noise;
+    brickData.data[i + 2] += noise;
+}
+
+brickCtx.putImageData(brickData, 0, 0);
+
+
+// ======================================
+// 2. CONCRETE MATERIAL
+// ======================================
+
+materials.concrete = createMaterialCanvas();
+
+var concreteCtx = materials.concrete.getContext("2d");
+
+concreteCtx.fillStyle = "#777777";
+concreteCtx.fillRect(0, 0, 128, 128);
+
+var concreteData = concreteCtx.getImageData(0, 0, 128, 128);
+
+for (var i = 0; i < concreteData.data.length; i += 4) {
+
+    var noise = (Math.random() - 0.5) * 5;
+
+    concreteData.data[i] += noise;
+    concreteData.data[i + 1] += noise;
+    concreteData.data[i + 2] += noise;
+}
+
+concreteCtx.putImageData(concreteData, 0, 0);
+
+// Small concrete speckles
+
+for (var i = 0; i < 500; i++) {
+
+    var px = Math.random() * 128;
+    var py = Math.random() * 128;
+
+    var shade = Math.random() > 0.5 ? "#444444" : "#aaaaaa";
+
+    concreteCtx.fillStyle = shade;
+
+    concreteCtx.fillRect(
+        px,
+        py,
+        Math.random() * 2 + 1,
+        Math.random() * 2 + 1
+    );
+}
+
+
+// ======================================
+// 3. WHITE SMILEY FACE MATERIAL
+// ======================================
+
+materials.smiley = createMaterialCanvas();
+
+var smileyCtx = materials.smiley.getContext("2d");
+
+// Black background
+
+smileyCtx.fillStyle = "#080808";
+smileyCtx.fillRect(0, 0, 128, 128);
+
+// Draw repeating white smiley faces
+
+function drawSmiley(cx, cy, radius) {
+
+    smileyCtx.fillStyle = "#ffffff";
+
+    // Face
+
+    smileyCtx.beginPath();
+
+    smileyCtx.arc(
+        cx,
+        cy,
+        radius,
+        0,
+        Math.PI * 2
+    );
+
+    smileyCtx.fill();
+
+    // Eyes
+
+    smileyCtx.fillStyle = "#080808";
+
+    smileyCtx.beginPath();
+
+    smileyCtx.arc(
+        cx - radius * 0.35,
+        cy - radius * 0.2,
+        radius * 0.10,
+        0,
+        Math.PI * 2
+    );
+
+    smileyCtx.arc(
+        cx + radius * 0.35,
+        cy - radius * 0.2,
+        radius * 0.10,
+        0,
+        Math.PI * 2
+    );
+
+    smileyCtx.fill();
+
+    // Smile
+
+    smileyCtx.beginPath();
+
+    smileyCtx.arc(
+        cx,
+        cy + radius * 0.05,
+        radius * 0.48,
+        0.15,
+        Math.PI - 0.15
+    );
+
+    smileyCtx.lineWidth = Math.max(2, radius * 0.12);
+    smileyCtx.strokeStyle = "#080808";
+    smileyCtx.stroke();
+}
+
+// Repeating pattern
+
+for (var row = 0; row < 4; row++) {
+
+    for (var col = 0; col < 4; col++) {
+
+        var offset = row % 2 === 0 ? 0 : 16;
+
+        drawSmiley(
+            col * 32 + 16 + offset,
+            row * 32 + 16,
+            12
+        );
+    }
+}
+
+
+// ======================================
+// 4. WOOD BOARD MATERIAL 🤤🍴🍴🍴🍴🍴🍴🍴🍴
+// ======================================
+
+materials.wood = createMaterialCanvas();
+
+var woodCtx = materials.wood.getContext("2d");
+
+// White base
+woodCtx.fillStyle = "#ffffff";
+woodCtx.fillRect(0, 0, 128, 128);
+
+// Slight variations between boards
+var woodColors = [
+    "#ffffff",
+    "#eeeeee",
+    "#f5f5f5",
+    "#e8e8e8",
+    "#fafafa"
+];
+
+// Draw wooden planks
+for (var row = 0; row < 4; row++) {
+
+    var y = row * 32;
+    var offset = (row % 2) * 32;
+
+    for (var col = -1; col < 3; col++) {
+
+        var x = col * 64 + offset;
+
+        // White plank body
+        woodCtx.fillStyle =
+            woodColors[Math.floor(Math.random() * woodColors.length)];
+
+        woodCtx.fillRect(x, y, 64, 32);
+
+        // Simple wood grain
+        woodCtx.strokeStyle = "rgba(90, 90, 90, 0.3)";
+        woodCtx.lineWidth = 1;
+
+        for (var g = 0; g < 3; g++) {
+
+            var grainY = y + 7 + g * 9;
+
+            woodCtx.beginPath();
+            woodCtx.moveTo(x + 5, grainY);
+
+            woodCtx.lineTo(
+                x + 15 + Math.random() * 35,
+                grainY + (Math.random() - 0.5) * 3
+            );
+
+            woodCtx.lineTo(x + 58, grainY);
+
+            woodCtx.stroke();
+        }
+
+        // Wood knots
+        if (Math.random() > 0.65) {
+
+            woodCtx.strokeStyle = "rgba(70, 70, 70, 0.4)";
+            woodCtx.lineWidth = 1;
+
+            woodCtx.beginPath();
+
+            woodCtx.ellipse(
+                x + 30,
+                y + 16,
+                4,
+                2,
+                0,
+                0,
+                Math.PI * 2
+            );
+
+            woodCtx.stroke();
+        }
+    }
+}
+
+// Dark plank outlines
+woodCtx.strokeStyle = "#777777";
+woodCtx.lineWidth = 3;
+
+// Horizontal edges
+for (var y = 0; y <= 128; y += 32) {
+
+    woodCtx.beginPath();
+    woodCtx.moveTo(0, y);
+    woodCtx.lineTo(128, y);
+    woodCtx.stroke();
+}
+
+// Staggered vertical edges
+for (var row = 0; row < 4; row++) {
+
+    var y = row * 32;
+    var offset = (row % 2) * 32;
+
+    for (var x = offset; x <= 128; x += 64) {
+
+        woodCtx.beginPath();
+        woodCtx.moveTo(x, y);
+        woodCtx.lineTo(x, y + 32);
+        woodCtx.stroke();
+    }
+}
+
+
+// ======================================
+// 5. WHITE MARBLE MATERIAL
+// ======================================
+
+materials.marble = createMaterialCanvas();
+
+var marbleCtx = materials.marble.getContext("2d");
+
+// Pure white base
+marbleCtx.fillStyle = "#ffffff";
+marbleCtx.fillRect(0, 0, 128, 128);
+
+// Slightly varied white patches
+var marbleColors = [
+    "#ffffff",
+    "#f5f5f5",
+    "#eeeeee",
+    "#fafafa"
+];
+
+for (var i = 0; i < 180; i++) {
+
+    marbleCtx.fillStyle =
+        marbleColors[Math.floor(Math.random() * marbleColors.length)];
+
+    marbleCtx.globalAlpha = 0.35;
+
+    marbleCtx.fillRect(
+        Math.random() * 128,
+        Math.random() * 128,
+        Math.random() * 12 + 2,
+        Math.random() * 8 + 2
+    );
+}
+
+marbleCtx.globalAlpha = 1;
+
+// Grey marble veins
+for (var i = 0; i < 9; i++) {
+
+    var startX = Math.random() * 128;
+    var startY = Math.random() * 128;
+
+    marbleCtx.beginPath();
+    marbleCtx.moveTo(startX, startY);
+
+    var currentX = startX;
+    var currentY = startY;
+
+    for (var j = 0; j < 5; j++) {
+
+        currentX += (Math.random() - 0.5) * 35;
+        currentY += Math.random() * 18 - 5;
+
+        marbleCtx.lineTo(currentX, currentY);
+    }
+
+    marbleCtx.strokeStyle =
+        Math.random() > 0.5 ? "#bdbdbd" : "#d4d4d4";
+
+    marbleCtx.lineWidth = Math.random() * 1.5 + 0.5;
+
+    marbleCtx.stroke();
+}
+
+// Smaller branching veins
+for (var i = 0; i < 12; i++) {
+
+    var x = Math.random() * 128;
+    var y = Math.random() * 128;
+
+    marbleCtx.beginPath();
+    marbleCtx.moveTo(x, y);
+
+    marbleCtx.lineTo(
+        x + (Math.random() - 0.5) * 20,
+        y + (Math.random() - 0.5) * 20
+    );
+
+    marbleCtx.strokeStyle = "#cccccc";
+    marbleCtx.lineWidth = 0.6;
+    marbleCtx.stroke();
+}
+
+// ======================================
+// 6. WHITE CARPET MATERIAL 🤤
+// ======================================
+
+materials.carpet = createMaterialCanvas();
+
+var carpetCtx = materials.carpet.getContext("2d");
+
+// Pure white base
+carpetCtx.fillStyle = "#ffffff";
+carpetCtx.fillRect(0, 0, 128, 128);
+
+// Static / carpet fibres at 25% opacity
+carpetCtx.fillStyle = "rgba(100, 100, 100, 0.25)";
+
+for (var i = 0; i < 3500; i++) {
+
+    var x = Math.random() * 128;
+    var y = Math.random() * 128;
+
+    carpetCtx.fillRect(
+        x,
+        y,
+        Math.random() * 1.5 + 0.3,
+        Math.random() * 1.5 + 0.3
+    );
+}
+
+
+// ======================================
+// REAL PERSPECTIVE FLOOR + CEILING RENDERER
+// ======================================
+
+var floorBuffer = document.createElement("canvas");
+var floorBufferCtx = floorBuffer.getContext("2d");
+var floorBufferImage = null;
+
+var floorTextureCache = {};
+
+var floorBufferWidth = 0;
+var floorBufferHeight = 0;
+
+// ======================================
+// HEX COLOR CONVERSION
+// ======================================
+
+function getRGB(hex) {
+    return {
+        r: parseInt(hex.substring(1, 3), 16),
+        g: parseInt(hex.substring(3, 5), 16),
+        b: parseInt(hex.substring(5, 7), 16)
+    };
+}
+
+// ======================================
+// TEXTURE CACHE
+// ======================================
+
+function getFloorTexture(name) {
+
+    if (!floorTextureCache[name]) {
+
+        var texture = materials[name];
+
+        floorTextureCache[name] =
+            texture.getContext("2d").getImageData(
+                0, 0, 128, 128
+            ).data;
+    }
+
+    return floorTextureCache[name];
+}
+
+// ======================================
+// RESIZE BUFFER
+// ======================================
+
+function resizeFloorBuffer(w, h) {
+
+    var newWidth = Math.max(1, Math.ceil(w / 2));
+    var newHeight = Math.max(1, Math.ceil(h / 2));
+
+    if (
+        newWidth !== floorBufferWidth ||
+        newHeight !== floorBufferHeight
+    ) {
+
+        floorBufferWidth = newWidth;
+        floorBufferHeight = newHeight;
+
+        floorBuffer.width = newWidth;
+        floorBuffer.height = newHeight;
+
+        floorBufferImage =
+            floorBufferCtx.createImageData(
+                newWidth,
+                newHeight
+            );
+    }
+}
+
+// ======================================
+// SHARED FLOOR / CEILING RENDERER
+// ======================================
+
+function renderSurface(
+    w, h, horizon,
+    dirX, dirY,
+    planeX, planeY,
+    isCeiling
+) {
+
+    if (isCeiling && horizon <= 0) return;
+    if (!isCeiling && horizon >= h) return;
+
+    resizeFloorBuffer(w, h);
+
+    var data = floorBufferImage.data;
+
+    var bw = floorBufferWidth;
+    var bh = floorBufferHeight;
+
+    var color = getRGB(
+        isCeiling ? ceilingColor : floorColor
+    );
+
+    var material = isCeiling
+        ? ceilingMaterial
+        : floorMaterial;
+
+    var texture = material !== "plain"
+        ? getFloorTexture(material)
+        : null;
+
+    var rayLeftX = dirX - planeX;
+    var rayLeftY = dirY - planeY;
+
+    var rayRightX = dirX + planeX;
+    var rayRightY = dirY + planeY;
+
+    var cameraHeight = isCeiling
+    ? (ceilingHeight - playerHeight) * player.zoom
+    : playerHeight * player.zoom;
+
+    for (var y = 0; y < bh; y++) {
+
+        var screenY = (y + 0.5) * h / bh;
+
+        var rowOffset = isCeiling
+            ? horizon - screenY
+            : screenY - horizon;
+
+        var rowIndex = y * bw * 4;
+
+        if (rowOffset <= 0) {
+
+            for (var x = 0; x < bw; x++) {
+                data[rowIndex + x * 4 + 3] = 0;
+            }
+
+            continue;
+        }
+
+        var rowDistance =
+            cameraHeight * h / rowOffset;
+
+        var fogDistance = Math.max(
+            0,
+            Math.min(1, (rowDistance - 2) / 18)
+        );
+
+        var fogAmount = fogDistance * fogStrength;
+
+        for (var x = 0; x < bw; x++) {
+
+            var cameraX = 2 * (x + 0.5) / bw - 1;
+
+            var rayX =
+                rayLeftX +
+                (rayRightX - rayLeftX) *
+                ((cameraX + 1) * 0.5);
+
+            var rayY =
+                rayLeftY +
+                (rayRightY - rayLeftY) *
+                ((cameraX + 1) * 0.5);
+
+            var worldX =
+                player.x + rowDistance * rayX;
+
+            var worldY =
+                player.y + rowDistance * rayY;
+
+            var r = color.r;
+            var g = color.g;
+            var b = color.b;
+
+            // TEXTURE
+
+            if (texture) {
+
+                var texX =
+                    ((Math.floor(worldX * 128) % 128) + 128) % 128;
+
+                var texY =
+                    ((Math.floor(worldY * 128) % 128) + 128) % 128;
+
+                var texIndex =
+                    (texY * 128 + texX) * 4;
+
+                r *= texture[texIndex] / 255;
+                g *= texture[texIndex + 1] / 255;
+                b *= texture[texIndex + 2] / 255;
+            }
+
+           
+// ======================================
+// FLOOR / CEILING DISTANCE DARKNESS
+// ======================================
+
+var darknessEnabled = isCeiling
+    ? ceilingDarknessEnabled
+    : floorDarknessEnabled;
+
+var darknessStrength = isCeiling
+    ? ceilingDarknessStrength
+    : floorDarknessStrength;
+
+var darknessColor = isCeiling
+    ? ceilingDarknessColor
+    : floorDarknessColor;
+
+if (darknessEnabled && darknessStrength > 0) {
+
+    var distanceDarkness = Math.max(
+        0,
+        Math.min(1, (rowDistance - 2) / 18)
+    );
+
+    var darknessAmount = distanceDarkness * darknessStrength;
+
+    var darkRGB = getRGB(darknessColor);
+
+    r = r * (1 - darknessAmount) + darkRGB.r * darknessAmount;
+    g = g * (1 - darknessAmount) + darkRGB.g * darknessAmount;
+    b = b * (1 - darknessAmount) + darkRGB.b * darknessAmount;
+}
+
+
+            // FOG
+
+            if (fogAmount > 0) {
+
+                r = r * (1 - fogAmount) + 120 * fogAmount;
+                g = g * (1 - fogAmount) + 120 * fogAmount;
+                b = b * (1 - fogAmount) + 120 * fogAmount;
+            }
+
+            var index = rowIndex + x * 4;
+
+            data[index] = Math.min(255, r);
+            data[index + 1] = Math.min(255, g);
+            data[index + 2] = Math.min(255, b);
+            data[index + 3] = 255;
+        }
+    }
+
+    floorBufferCtx.putImageData(
+        floorBufferImage,
+        0,
+        0
+    );
+
+    ctx.save();
+
+    ctx.imageSmoothingEnabled = true;
+
+    ctx.drawImage(
+        floorBuffer,
+        0,
+        0,
+        w,
+        h
+    );
+
+    ctx.restore();
+}
+
+// ======================================
+// FLOOR RENDERER
+// ======================================
+
+function renderRealFloor(
+    w, h, horizon,
+    dirX, dirY,
+    planeX, planeY
+) {
+
+    renderSurface(
+        w, h, horizon,
+        dirX, dirY,
+        planeX, planeY,
+        false
+    );
+}
+
+// ======================================
+// CEILING RENDERER
+// ======================================
+
+function renderRealCeiling(
+    w, h, horizon,
+    dirX, dirY,
+    planeX, planeY
+) {
+
+    renderSurface(
+        w, h, horizon,
+        dirX, dirY,
+        planeX, planeY,
+        true
+    );
+}
+
+
+// ======================================
+// ACTIVE MATERIAL
+// ======================================
+
+
+// ======================================
+// SHARED ENVIRONMENT MATERIAL SYSTEM
+// ======================================
+
+// Every wall shares the same material and color.
+// Every floor shares the same material and color.
+// The ceiling has one shared color.
+
+
+// ======================================
+// SHARED ENVIRONMENT MATERIAL SYSTEM
+// ======================================
+
+var MATERIAL_IDS = {
+    plain: 0,
+    brick: 1,
+    concrete: 2,
+    smiley: 3,
+    wood: 4,
+    carpet: 5,
+    marble: 6
+};
+
+// INITIAL ENVIRONMENT SETTINGS
+
+var environment = {
+    wall: {
+        materialId: 1,
+        color: "#858585",
+        textureEnabled: true
+    },
+
+    floor: {
+        materialId: 4,
+        color: "#e8b780"
+    },
+
+ ceiling: {
+    materialId: 1,
+    color: "#707070"
+},
+
+    fog: {
+        strength: 0
+    },
+
+    cubes: {
+        enabled: false
+    }
+};
+
+// GAME COMPATIBILITY VARIABLES
+var activeMaterial = "brick";
+var texCanvas = null;
+
+var wallColor = "#ffffff";
+var floorColor = "#1a1a1a";
+var ceilingColor = "#111111";
+
+var floorMaterial = "plain";
+var ceilingMaterial = "plain";
+var wallTextureEnabled = true;
+var fogStrength = 0;
+var showCubes = true;
+
+
+// ======================================
+// SYNCHRONIZE ENVIRONMENT SETTINGS
+// ======================================
+
+function syncEnvironmentSettings() {
+
+    wallColor = environment.wall.color;
+
+    activeMaterial = "brick";
+
+    for (var name in MATERIAL_IDS) {
+        if (MATERIAL_IDS[name] === environment.wall.materialId) {
+            activeMaterial = name;
+            break;
+        }
+    }
+
+    texCanvas = materials[activeMaterial] || null;
+
+    floorColor = environment.floor.color;
+
+    floorMaterial = "plain";
+
+    for (var name in MATERIAL_IDS) {
+        if (MATERIAL_IDS[name] === environment.floor.materialId) {
+            floorMaterial = name;
+            break;
+        }
+    }
+
+    ceilingColor = environment.ceiling.color;
+ceilingMaterial = "plain";
+
+for (var name in MATERIAL_IDS) {
+    if (MATERIAL_IDS[name] === environment.ceiling.materialId) {
+        ceilingMaterial = name;
+        break;
+    }
+}
+
+    wallTextureEnabled = environment.wall.textureEnabled;
+    fogStrength = environment.fog.strength / 100;
+    showCubes = environment.cubes.enabled;
+
+    console.log("Wall ID:", environment.wall.materialId);
+    console.log("Active material:", activeMaterial);
+    console.log("Texture canvas:", texCanvas);
+    console.log("Wall color:", wallColor);
+}
+
+syncEnvironmentSettings();
+
+
+document.getElementById("materialSelect").value = activeMaterial;
+document.getElementById("floorMaterialSelect").value = floorMaterial;
+document.getElementById("ceilingMaterialSelect").value = ceilingMaterial;
+
+document.getElementById("wallColor").value = wallColor;
+document.getElementById("floorColor").value = floorColor;
+document.getElementById("ceilingColor").value = ceilingColor;
+
+document.getElementById("fogStrength").value =
+    environment.fog.strength;
+
+document.getElementById("fogValue").textContent =
+    environment.fog.strength + "%";
+
+document.getElementById("textureToggle").checked =
+    wallTextureEnabled;
+
+document.getElementById("cubeToggle").checked =
+    showCubes;
+
+
+// ======================================
+// STARTING MAZE + ENVIRONMENT SETTINGS
+// ======================================
+
+// 0 = Floor
+// 1 = Wall
+// 2 = Player Spawn
+// 3 = Cube Spawn
+
+var map = [
+    [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
+    [1,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
+    [1,0,1,1,1,1,1,1,1,1,1,1,1,0,1],
+    [1,0,0,0,1,0,0,0,1,0,0,0,1,0,1],
+    [1,0,1,0,1,1,0,1,1,1,1,0,1,0,1],
+    [1,1,1,0,1,0,0,0,0,0,1,0,1,0,1],
+    [1,0,0,0,1,0,1,1,1,0,1,0,1,0,1],
+    [1,0,1,1,1,0,0,2,1,0,0,0,1,0,1],
+    [1,3,1,0,0,0,1,1,1,0,1,0,1,0,1],
+    [1,1,1,1,1,0,0,0,0,0,1,0,0,0,1],
+    [1,0,0,0,1,1,1,1,1,1,1,0,1,0,1],
+    [1,0,1,0,0,0,0,0,0,0,0,0,1,0,1],
+    [1,0,1,1,1,1,1,1,1,1,1,1,1,0,1],
+    [1,0,1,0,0,0,0,0,0,0,0,0,0,0,1],
+    [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1]
+];
+
+// ======================================
+// CEILING HEIGHT
+// ======================================
+
+var ceilingHeight = 1;
+var playerHeight = 0.5;
+
+
+// ======================================
+// MATERIAL ID REFERENCE
+// ======================================
+
+var MATERIAL_IDS = {
+    plain: 0,
+    brick: 1,
+    concrete: 2,
+    smiley: 3,
+    wood: 4,
+    carpet: 5,
+    marble: 6
+};
+
+
+// ======================================
+// SAVE ORIGINAL STARTING MAZE
+// ======================================
+
+var originalMap = map.map(function(row) {
+    return row.slice();
+});
+
+var allowMapExpansion = false;
+var showCubes = true
+
+var player = {
+    x: 1.5,
+    y: 1.5,
+    angle: 0,
+    pitch: 0,
+    zoom: 1
+};
+
+var cubes = [];
+// ======================================
+// MAZE MAP SYSTEM
+// ======================================
+
+var mazeMapVisible = false;
+
+var mapCanvas = document.getElementById("mapCanvas");
+var mapCtx = mapCanvas.getContext("2d");
+
+var mazeMapElement = document.getElementById("mazeMap");
+
+
+function drawMazeMap() {
+
+    if (!mazeMapVisible) return;
+
+    var mapWidth = map[0].length;
+    var mapHeight = map.length;
+
+    mapCanvas.width = mapWidth * 8;
+    mapCanvas.height = mapHeight * 8;
+
+    var tileSize = 8;
+
+    // BACKGROUND
+    mapCtx.fillStyle = environment.floor.color;
+
+    mapCtx.fillRect(
+        0, 0,
+        mapCanvas.width,
+        mapCanvas.height
+    );
+
+    // FIND ACTIVE MATERIALS
+    var wallMaterial = materials[activeMaterial];
+    var floorTexture = materials[floorMaterial];
+
+    // DRAW MAZE
+    for (var y = 0; y < mapHeight; y++) {
+
+        for (var x = 0; x < mapWidth; x++) {
+
+            var tile = map[y][x];
+
+            var px = x * tileSize;
+            var py = y * tileSize;
+
+            if (tile === 1) {
+
+                // WALL MATERIAL
+                if (wallTextureEnabled && wallMaterial) {
+
+                    mapCtx.drawImage(
+                        wallMaterial,
+                        px, py,
+                        tileSize, tileSize
+                    );
+
+                    mapCtx.globalCompositeOperation = "multiply";
+
+                    mapCtx.fillStyle = environment.wall.color;
+
+                    mapCtx.fillRect(
+                        px, py,
+                        tileSize, tileSize
+                    );
+
+                    mapCtx.globalCompositeOperation = "source-over";
+
+                } else {
+
+                    mapCtx.fillStyle = environment.wall.color;
+
+                    mapCtx.fillRect(
+                        px, py,
+                        tileSize, tileSize
+                    );
+
+                }
+
+            } else {
+
+                // FLOOR MATERIAL
+                if (floorMaterial !== "plain" && floorTexture) {
+
+                    mapCtx.drawImage(
+                        floorTexture,
+                        px, py,
+                        tileSize, tileSize
+                    );
+
+                    mapCtx.globalCompositeOperation = "multiply";
+
+                    mapCtx.fillStyle = environment.floor.color;
+
+                    mapCtx.fillRect(
+                        px, py,
+                        tileSize, tileSize
+                    );
+
+                    mapCtx.globalCompositeOperation = "source-over";
+
+                } else {
+
+                    mapCtx.fillStyle = environment.floor.color;
+
+                    mapCtx.fillRect(
+                        px, py,
+                        tileSize, tileSize
+                    );
+
+                }
+
+            }
+
+        }
+    }
+
+    // PLAYER MARKER
+    var playerX = player.x * tileSize;
+    var playerY = player.y * tileSize;
+
+    mapCtx.beginPath();
+
+    mapCtx.arc(
+        playerX,
+        playerY,
+        3,
+        0,
+        Math.PI * 2
+    );
+
+    mapCtx.fillStyle = "#ffff00";
+    mapCtx.fill();
+
+    mapCtx.strokeStyle = "rgba(0,0,0,0.1)";
+    mapCtx.lineWidth = 2;
+
+    mapCtx.stroke();
+}
+
+
+// ======================================
+// MAP TOGGLE
+// ======================================
+
+document.addEventListener("keydown", function(e) {
+
+    if (e.key.toLowerCase() === "m" && !e.repeat) {
+
+        if (settingsOpen) return;
+
+        mazeMapVisible = !mazeMapVisible;
+
+        mazeMapElement.style.display =
+            mazeMapVisible ? "block" : "none";
+
+        if (mazeMapVisible) {
+            drawMazeMap();
+        }
+    }
+
+});
+// ======================================
+// MAZE GENERATOR
+// ======================================
+
+
+var allowMapExpansion = false;
+var showCubes = true;
+// ======================================
+// DISTANCE DARKNESS SETTINGS
+// ======================================
+
+var wallDarknessEnabled = true;
+var floorDarknessEnabled = true;
+var ceilingDarknessEnabled = true;
+
+var wallDarknessStrength = 0.85;
+var floorDarknessStrength = 0.85;
+var ceilingDarknessStrength = 0.85;
+
+var wallDarknessColor = "#000000";
+var floorDarknessColor = "#000000";
+var ceilingDarknessColor = "#000000";
+// INITIALIZE DARKNESS SLIDERS
+
+document.getElementById("wallDarknessStrength").value = 85;
+document.getElementById("floorDarknessStrength").value = 85;
+document.getElementById("ceilingDarknessStrength").value = 85;
+
+document.getElementById("wallDarknessValue").textContent = "85%";
+document.getElementById("floorDarknessValue").textContent = "85%";
+document.getElementById("ceilingDarknessValue").textContent = "85%";
+var ceilingDarknessColor = "#000000";
+var editorMode = false;
+
+// Double-press detection
+var lastCtrlPress = 0;
+var lastAltPress = 0;
+var shortcutDelay = 450;
+
+var resetChordPressed = false;
+
+
+// ======================================
+// RESET ORIGINAL MAZE
+// ======================================
+
+function resetOriginalMaze() {
+
+    // Restore original map
+    map = originalMap.map(function(row) {
+        return row.slice();
+    });
+
+    // Reset player
+    player.x = 1.5;
+    player.y = 1.5;
+    player.angle = 0;
+    player.pitch = 0;
+    player.zoom = 1;
+
+    // Reset cubes
+    cubes = [];
+
+    // Restore original spawn markers
+    for (var y = 0; y < map.length; y++) {
+
+        for (var x = 0; x < map[y].length; x++) {
+
+            if (map[y][x] === 2) {
+                player.x = x + 0.5;
+                player.y = y + 0.5;
+                map[y][x] = 0;
+            }
+
+            if (map[y][x] === 3) {
+
+                cubes.push({
+                    x: x + 0.5,
+                    y: y + 0.5
+                });
+
+                map[y][x] = 0;
+            }
+        }
+    }
+
+    // Restore expansion
+    allowMapExpansion = true;
+
+
+
+    // Refresh map display
+    if (mazeMapVisible) {
+        drawMazeMap();
+    }
+
+    console.log("Original maze restored!");
+}
+
+
+// ======================================
+// SPECIAL KEYBOARD SHORTCUTS
+// ======================================
+
+document.addEventListener("keydown", function(e) {
+
+    if (e.repeat) return;
+
+    var now = Date.now();
+
+    // CTRL + ALT = RESET MAZE
+
+    if (e.ctrlKey && e.altKey) {
+
+        if (!resetChordPressed) {
+
+            resetChordPressed = true;
+
+            resetOriginalMaze();
+
+        }
+
+        e.preventDefault();
+        return;
+    }
+
+
+    // CTRL TWICE = TOGGLE MAP EXPANSION
+
+    if (e.key === "Control" && !e.altKey) {
+
+        if (now - lastCtrlPress < shortcutDelay) {
+
+            allowMapExpansion = !allowMapExpansion;
+
+            lastCtrlPress = 0;
+
+            console.log(
+                "Map expansion:",
+                allowMapExpansion ? "ON" : "OFF"
+            );
+
+        } else {
+
+            lastCtrlPress = now;
+
+        }
+
+        e.preventDefault();
+    }
+
+
+    // ALT TWICE = TOGGLE EDITOR MODE
+
+    if (e.key === "Alt" && !e.ctrlKey) {
+
+        if (now - lastAltPress < shortcutDelay) {
+
+            editorMode = !editorMode;
+
+            lastAltPress = 0;
+
+            console.log(
+                "Editor mode:",
+                editorMode ? "ON" : "OFF"
+            );
+
+        } else {
+
+            lastAltPress = now;
+
+        }
+
+        e.preventDefault();
+    }
+
+});
+
+
+// Reset chord detection
+
+document.addEventListener("keyup", function(e) {
+
+    if (e.key === "Control" || e.key === "Alt") {
+        resetChordPressed = false;
+    }
+
+});
+
+
+function generateMaze(width, height) {
+
+    // Keep dimensions within safe limits
+
+    width = Math.max(7, Math.min(101, width));
+    height = Math.max(7, Math.min(101, height));
+
+    // Create a completely walled map
+
+    var newMap = [];
+
+    for (var y = 0; y < height; y++) {
+
+        var row = [];
+
+        for (var x = 0; x < width; x++) {
+            row.push(1);
+        }
+
+        newMap.push(row);
+    }
+
+    // Randomized maze carving
+
+    var stack = [];
+
+    newMap[1][1] = 0;
+
+    stack.push({
+        x: 1,
+        y: 1
+    });
+
+    var directions = [
+        { x: 0, y: -2 },
+        { x: 0, y: 2 },
+        { x: -2, y: 0 },
+        { x: 2, y: 0 }
+    ];
+
+    while (stack.length > 0) {
+
+        var current = stack[stack.length - 1];
+
+        var possible = [];
+
+        for (var i = 0; i < directions.length; i++) {
+
+            var nx = current.x + directions[i].x;
+            var ny = current.y + directions[i].y;
+
+            if (
+                nx > 0 &&
+                nx < width - 1 &&
+                ny > 0 &&
+                ny < height - 1 &&
+                newMap[ny][nx] === 1
+            ) {
+
+                possible.push({
+                    x: nx,
+                    y: ny,
+                    dx: directions[i].x,
+                    dy: directions[i].y
+                });
+
+            }
+        }
+
+        if (possible.length > 0) {
+
+            var next = possible[
+                Math.floor(Math.random() * possible.length)
+            ];
+
+            // Remove wall between the two cells
+
+            newMap[current.y + next.dy / 2]
+                  [current.x + next.dx / 2] = 0;
+
+            newMap[next.y][next.x] = 0;
+
+            stack.push({
+                x: next.x,
+                y: next.y
+            });
+
+        } else {
+
+            stack.pop();
+
+        }
+    }
+
+    // Replace old map
+
+    map = newMap;
+
+    // Reset player
+
+    player.x = 1.5;
+    player.y = 1.5;
+    player.angle = 0;
+    player.pitch = 0;
+    player.zoom = 1;
+
+    // Reset cubes
+
+    cubes = [];
+
+    // Generate two cubes in random open spaces
+
+    for (var c = 0; c < 2; c++) {
+
+        var attempts = 0;
+
+        while (attempts < 500) {
+
+            var cx = Math.floor(Math.random() * width);
+            var cy = Math.floor(Math.random() * height);
+
+            if (
+                map[cy] &&
+                map[cy][cx] === 0 &&
+                (cx !== 1 || cy !== 1)
+            ) {
+
+                var occupied = false;
+
+                for (var j = 0; j < cubes.length; j++) {
+
+                    if (
+                        Math.floor(cubes[j].x) === cx &&
+                        Math.floor(cubes[j].y) === cy
+                    ) {
+                        occupied = true;
+                    }
+                }
+
+                if (!occupied) {
+
+                    cubes.push({
+                        x: cx + 0.5,
+                        y: cy + 0.5
+                    });
+
+                    break;
+                }
+            }
+
+            attempts++;
+        }
+    }
+
+    // Keep generated maze at selected dimensions
+
+    allowMapExpansion = false;
+}
+
+
+// Find spawn position
+
+for (var r = 0; r < map.length; r++) {
+    for (var c = 0; c < map[r].length; c++) {
+
+        if (map[r][c] === 2) {
+            player.x = c + 0.5;
+            player.y = r + 0.5;
+            map[r][c] = 0;
+        }
+
+        if (map[r][c] === 3) {
+            cubes.push({
+                x: c + 0.5,
+                y: r + 0.5
+            });
+        }
+    }
+}
+
+
+
+// ======================================
+// MAP EXPANSION (IE11 COMPATIBLE)
+// ======================================
+
+var EXPAND_DISTANCE = 2;
+var EXPAND_AMOUNT = 5;
+
+function makeEmptyRow(width) {
+    var row = [];
+
+    for (var i = 0; i < width; i++) {
+        row.push(0);
+    }
+
+    return row;
+}
+
+function expandMap() {
+
+    if (!allowMapExpansion) return;
+
+    var lookX = player.x + Math.cos(player.angle) * EXPAND_DISTANCE;
+    var lookY = player.y + Math.sin(player.angle) * EXPAND_DISTANCE;
+
+    var left = Math.floor(lookX) < 2;
+    var right = Math.floor(lookX) >= map[0].length - 2;
+    var top = Math.floor(lookY) < 2;
+    var bottom = Math.floor(lookY) >= map.length - 2;
+
+    // WEST EXPANSION
+    if (left) {
+
+        for (var r = 0; r < map.length; r++) {
+
+            var newColumns = makeEmptyRow(EXPAND_AMOUNT);
+
+            map[r] = newColumns.concat(map[r]);
+        }
+
+        player.x += EXPAND_AMOUNT;
+
+        for (var c = 0; c < cubes.length; c++) {
+            cubes[c].x += EXPAND_AMOUNT;
+        }
+    }
+
+    // EAST EXPANSION
+    if (right) {
+
+        for (var r = 0; r < map.length; r++) {
+
+            for (var i = 0; i < EXPAND_AMOUNT; i++) {
+                map[r].push(0);
+            }
+        }
+    }
+
+    // NORTH EXPANSION
+    if (top) {
+
+        var width = map[0].length;
+
+        for (var i = 0; i < EXPAND_AMOUNT; i++) {
+
+            var newRow = makeEmptyRow(width);
+
+            map.unshift(newRow);
+        }
+
+        player.y += EXPAND_AMOUNT;
+
+        for (var c = 0; c < cubes.length; c++) {
+            cubes[c].y += EXPAND_AMOUNT;
+        }
+    }
+
+    // SOUTH EXPANSION
+    if (bottom) {
+
+        var width = map[0].length;
+
+        for (var i = 0; i < EXPAND_AMOUNT; i++) {
+
+            map.push(makeEmptyRow(width));
+        }
+    }
+}
+
+
+
+// ======================================
+// INPUT AND SETTINGS
+// ======================================
+
+var keys = {};
+var mouseLooking = false;
+// ======================================
+// WALKING AND SPRINT SETTINGS
+// ======================================
+
+var walkSpeed = 0.035;
+var sprintSpeed = 0.09;
+
+var settingsOpen = false;
+
+
+var settingsMenu = document.getElementById("settingsMenu");
+
+
+// ======================================
+// SETTINGS MENU
+// ======================================
+
+function toggleSettings() {
+
+    settingsOpen = !settingsOpen;
+
+    settingsMenu.style.display =
+        settingsOpen ? "block" : "none";
+
+    keys = {};
+
+    if (settingsOpen) {
+        document.exitPointerLock();
+    }
+}
+
+document.addEventListener("keydown", function(e) {
+
+    if (e.key.toLowerCase() === "l" && !e.repeat) {
+        toggleSettings();
+    }
+
+    if (e.key === "Escape" && settingsOpen) {
+
+        settingsOpen = false;
+        settingsMenu.style.display = "none";
+
+    }
+
+});
+
+document.getElementById("closeSettings").onclick = function() {
+
+    settingsOpen = false;
+    settingsMenu.style.display = "none";
+
+};
+// ======================================
+// MAZE SIZE CONTROLS
+// ======================================
+
+document.getElementById("generateMaze").onclick = function() {
+
+    var width = parseInt(
+        document.getElementById("mazeWidth").value,
+        10
+    );
+
+    var height = parseInt(
+        document.getElementById("mazeHeight").value,
+        10
+    );
+
+    if (isNaN(width)) width = 21;
+    if (isNaN(height)) height = 21;
+
+    width = Math.max(7, Math.min(101, width));
+    height = Math.max(7, Math.min(101, height));
+
+    document.getElementById("mazeWidth").value = width;
+    document.getElementById("mazeHeight").value = height;
+
+    generateMaze(width, height);
+
+    // Close settings after generation
+
+    settingsOpen = false;
+    settingsMenu.style.display = "none";
+};
+
+
+// ======================================
+// CUBE VISIBILITY TOGGLE
+// ======================================
+
+document.getElementById("cubeToggle").onchange = function() {
+
+    showCubes = this.checked;
+
+};
+
+
+// ======================================
+// WALL MATERIAL SELECTOR
+// ======================================
+
+document.getElementById("materialSelect").onchange = function() {
+
+    environment.wall.materialId = MATERIAL_IDS[this.value];
+
+    syncEnvironmentSettings();
+
+};
+
+
+
+// ======================================
+// FLOOR MATERIAL SELECTOR
+// ======================================
+
+
+document.getElementById("floorMaterialSelect").onchange = function() {
+
+    environment.floor.materialId = MATERIAL_IDS[this.value];
+
+    syncEnvironmentSettings();
+
+};
+
+// ======================================
+// CEILING MATERIAL SELECTOR
+// ======================================
+
+document.getElementById("ceilingMaterialSelect").onchange = function() {
+
+    environment.ceiling.materialId = MATERIAL_IDS[this.value];
+
+    syncEnvironmentSettings();
+
+};
+// ======================================
+// CEILING HEIGHT SLIDER
+// ======================================
+
+document.getElementById("ceilingHeightSlider").oninput = function() {
+
+    ceilingHeight = Number(this.value);
+
+    document.getElementById("ceilingHeightValue").textContent =
+        ceilingHeight.toFixed(1);
+
+};
+// ======================================
+// FOG STRENGTH
+// ======================================
+
+document.getElementById("fogStrength").oninput = function() {
+
+    fogStrength = Number(this.value) / 100;
+
+    document.getElementById("fogValue").textContent =
+        this.value + "%";
+
+};
+
+
+// ======================================
+// TEXTURE TOGGLE
+// ======================================
+
+document.getElementById("textureToggle").onchange = function() {
+
+    wallTextureEnabled = this.checked;
+
+};
+
+
+
+// ======================================
+// DISTANCE DARKNESS SETTINGS
+// ======================================
+
+document.getElementById("wallDarknessToggle").onchange = function() {
+    wallDarknessEnabled = this.checked;
+};
+
+document.getElementById("floorDarknessToggle").onchange = function() {
+    floorDarknessEnabled = this.checked;
+};
+
+document.getElementById("ceilingDarknessToggle").onchange = function() {
+    ceilingDarknessEnabled = this.checked;
+};
+
+
+// ======================================
+// WALL DARKNESS CONTROLS
+// ======================================
+
+document.getElementById("wallDarknessStrength").oninput = function() {
+    wallDarknessStrength = Number(this.value) / 100;
+
+    document.getElementById("wallDarknessValue").textContent =
+        this.value + "%";
+};
+
+document.getElementById("wallDarknessColor").oninput = function() {
+    wallDarknessColor = this.value;
+};
+
+
+// ======================================
+// FLOOR DARKNESS CONTROLS
+// ======================================
+
+document.getElementById("floorDarknessStrength").oninput = function() {
+    floorDarknessStrength = Number(this.value) / 100;
+
+    document.getElementById("floorDarknessValue").textContent =
+        this.value + "%";
+};
+
+document.getElementById("floorDarknessColor").oninput = function() {
+    floorDarknessColor = this.value;
+};
+
+
+// ======================================
+// CEILING DARKNESS CONTROLS
+// ======================================
+
+document.getElementById("ceilingDarknessStrength").oninput = function() {
+    ceilingDarknessStrength = Number(this.value) / 100;
+
+    document.getElementById("ceilingDarknessValue").textContent =
+        this.value + "%";
+};
+
+document.getElementById("ceilingDarknessColor").oninput = function() {
+    ceilingDarknessColor = this.value;
+};
+
+
+// ======================================
+// COLOR PICKERS
+// ======================================
+
+
+// ======================================
+// COLOR PICKERS
+// ======================================
+
+// WALL COLOR
+
+document.getElementById("wallColor").oninput = function() {
+
+    environment.wall.color = this.value;
+
+    syncEnvironmentSettings();
+
+};
+
+
+// FLOOR COLOR
+
+document.getElementById("floorColor").oninput = function() {
+
+    environment.floor.color = this.value;
+
+    syncEnvironmentSettings();
+
+};
+
+
+// CEILING COLOR
+
+document.getElementById("ceilingColor").oninput = function() {
+
+    environment.ceiling.color = this.value;
+
+    syncEnvironmentSettings();
+
+};
+
+
+
+// ======================================
+// GET TILE IN FRONT
+// ======================================
+
+function getTileInFront() {
+
+    var tx = Math.floor(player.x + Math.cos(player.angle));
+    var ty = Math.floor(player.y + Math.sin(player.angle));
+
+    if (
+        tx < 0 || tx >= map[0].length ||
+        ty < 0 || ty >= map.length
+    ) {
+        return null;
+    }
+
+    return {
+        x: tx,
+        y: ty
+    };
+}
+
+
+// ======================================
+// KEYBOARD CONTROLS
+// ======================================
+
+document.onkeydown = function(e) {
+
+    e = e || window.event;
+
+    if (settingsOpen || mazeMapVisible) return false;
+
+    var key = String.fromCharCode(e.keyCode).toLowerCase();
+
+    if (e.keyCode === 37) key = "arrowleft";
+    if (e.keyCode === 38) key = "arrowup";
+    if (e.keyCode === 39) key = "arrowright";
+    if (e.keyCode === 40) key = "arrowdown";
+
+    if (e.keyCode === 27) {
+        mouseLooking = false;
+        canvas.style.cursor = "crosshair";
+        return false;
+    }
+
+if (e.key === "Shift") {
+    keys["shift"] = true;
+}
+    keys[key] = true;
+
+    if (e.repeat) return false;
+
+    var target = getTileInFront();
+
+    if (target && !editorMode) {
+
+        var tx = target.x;
+        var ty = target.y;
+
+        // ADD WALL
+
+        if (key === "e" && map[ty][tx] === 0) {
+            map[ty][tx] = 1;
+        }
+
+        // REMOVE WALL OR CUBE
+
+        if (key === "q") {
+
+            if (map[ty][tx] === 1 || map[ty][tx] === 3) {
+
+                var newCubes = [];
+
+                for (var i = 0; i < cubes.length; i++) {
+
+                    if (
+                        Math.floor(cubes[i].x) !== tx ||
+                        Math.floor(cubes[i].y) !== ty
+                    ) {
+                        newCubes.push(cubes[i]);
+                    }
+                }
+
+                cubes = newCubes;
+
+                map[ty][tx] = 0;
+            }
+        }
+
+        // SPAWN CUBE
+
+        if (key === "f" && map[ty][tx] === 0) {
+
+            map[ty][tx] = 3;
+
+            cubes.push({
+                x: tx + 0.5,
+                y: ty + 0.5
+            });
+        }
+    }
+
+    return false;
+};
+
+document.onkeyup = function(e) {
+
+    e = e || window.event;
+
+    var key = String.fromCharCode(e.keyCode).toLowerCase();
+
+    if (e.keyCode === 37) key = "arrowleft";
+    if (e.keyCode === 38) key = "arrowup";
+    if (e.keyCode === 39) key = "arrowright";
+    if (e.keyCode === 40) key = "arrowdown";
+    if (e.key === "Shift") {
+    keys["shift"] = false;
+}
+    keys[key] = false;
+};
+
+
+// ======================================
+// MOUSE LOOK
+// ======================================
+
+canvas.addEventListener("click", function() {
+
+    if (!settingsOpen && !mouseLooking) {
+        canvas.requestPointerLock();
+    }
+
+});
+
+document.addEventListener("pointerlockchange", function() {
+
+    mouseLooking = (document.pointerLockElement === canvas);
+
+    canvas.style.cursor = mouseLooking ? "none" : "crosshair";
+
+});
+
+document.addEventListener("mousemove", function(e) {
+
+    if (!mouseLooking || settingsOpen) return;
+
+    player.angle += e.movementX * 0.0025;
+    player.pitch -= e.movementY * 0.7;
+
+    var maxPitch = canvas.height * 0.45;
+
+    player.pitch = Math.max(
+        -maxPitch,
+        Math.min(maxPitch, player.pitch)
+    );
+
+});
+
+document.addEventListener("keydown", function(e) {
+
+    if (e.key === "Escape") {
+        document.exitPointerLock();
+    }
+
+});
+
+
+// ======================================
+// ZOOM
+// ======================================
+
+document.onmousewheel = function(e) {
+
+    e = e || window.event;
+
+    var delta = e.wheelDelta;
+
+    player.zoom += delta * 0.001;
+
+    player.zoom = Math.max(
+        0.4,
+        Math.min(3, player.zoom)
+    );
+
+    return false;
+};
+
+
+// ======================================
+// COLLISION
+// ======================================
+
+function isWall(x, y) {
+
+    var mx = Math.floor(x);
+    var my = Math.floor(y);
+
+    if (
+        mx < 0 || mx >= map[0].length ||
+        my < 0 || my >= map.length
+    ) {
+        return true;
+    }
+
+    return map[my][mx] === 1;
+}
+
+
+// ======================================
+// UPDATE
+// ======================================
+var speedHistory = [];
+var averageFrames = 60;
+
+function update() {
+
+// ======================================
+// WALKING AND SPRINTING
+// ======================================
+
+var moveSpeed = keys["shift"] ? sprintSpeed : walkSpeed;
+
+
+// ======================================
+// SPEEDOMETER
+// ======================================
+
+
+
+var rotSpeed = 0.03;
+
+    if (keys["arrowleft"]) {
+        player.angle -= rotSpeed;
+    }
+
+    if (keys["arrowright"]) {
+        player.angle += rotSpeed;
+    }
+
+    var dx = 0;
+    var dy = 0;
+
+    var cos = Math.cos(player.angle);
+    var sin = Math.sin(player.angle);
+
+    if (keys["w"]) {
+        dx += cos * moveSpeed;
+        dy += sin * moveSpeed;
+    }
+
+    if (keys["s"]) {
+        dx -= cos * moveSpeed;
+        dy -= sin * moveSpeed;
+    }
+
+    if (keys["a"]) {
+        dx += sin * moveSpeed;
+        dy -= cos * moveSpeed;
+    }
+
+    if (keys["d"]) {
+        dx -= sin * moveSpeed;
+        dy += cos * moveSpeed;
+    }
+
+    var margin = 0.25;
+
+// Save player position before movement
+var oldX = player.x;
+var oldY = player.y;
+
+    var newX = player.x + dx;
+    var newY = player.y + dy;
+
+    if (!isWall(
+        newX + (dx > 0 ? margin : -margin),
+        player.y
+    )) {
+        player.x = newX;
+    }
+
+    if (!isWall(
+        player.x,
+        newY + (dy > 0 ? margin : -margin)
+    )) {
+        player.y = newY;
+    }
+// ======================================
+
+
+
+    expandMap();
+}
+
+
+
+
+// ======================================
+// RENDER
+// ======================================
+
+function renderScene() {
+
+    var w = canvas.width;
+    var h = canvas.height;
+
+    var horizon = h / 2 + player.pitch;
+
+
+
+    // ======================================
+    // CAMERA
+    // ======================================
+
+    var dirX = Math.cos(player.angle);
+    var dirY = Math.sin(player.angle);
+
+    var planeX = -dirY * 0.66;
+    var planeY = dirX * 0.66;
+// ======================================
+// REAL 3D PERSPECTIVE FLOOR
+// ======================================
+
+// Camera direction and camera plane are now ready.
+// Render the floor BEFORE walls so walls naturally
+// cover the floor wherever they should.
+
+// ======================================
+// RENDER CEILING
+// ======================================
+
+renderRealCeiling(
+    w,
+    h,
+    horizon,
+    dirX,
+    dirY,
+    planeX,
+    planeY
+);
+
+renderRealFloor(
+    w,
+    h,
+    horizon,
+    dirX,
+    dirY,
+    planeX,
+    planeY
+);
+
+    var zBuffer = new Array(w);
+
+    for (var i = 0; i < w; i++) {
+        zBuffer[i] = Infinity;
+    }
+
+
+    // ======================================
+    // RAYCAST WALLS
+    // ======================================
+
+    for (var i = 0; i < w; i++) {
+
+        var cameraX = 2 * i / w - 1;
+
+        var rayDirX = dirX + planeX * cameraX;
+        var rayDirY = dirY + planeY * cameraX;
+
+        var mapX = Math.floor(player.x);
+        var mapY = Math.floor(player.y);
+
+        var deltaDistX = Math.abs(1 / rayDirX);
+        var deltaDistY = Math.abs(1 / rayDirY);
+
+        var stepX, stepY;
+        var sideDistX, sideDistY;
+
+        var side = 0;
+        var hit = false;
+
+        if (rayDirX < 0) {
+
+            stepX = -1;
+            sideDistX = (player.x - mapX) * deltaDistX;
+
+        } else {
+
+            stepX = 1;
+            sideDistX = (mapX + 1 - player.x) * deltaDistX;
+
+        }
+
+        if (rayDirY < 0) {
+
+            stepY = -1;
+            sideDistY = (player.y - mapY) * deltaDistY;
+
+        } else {
+
+            stepY = 1;
+            sideDistY = (mapY + 1 - player.y) * deltaDistY;
+
+        }
+
+
+        // FIND WALL
+
+        while (!hit) {
+
+            if (sideDistX < sideDistY) {
+
+                sideDistX += deltaDistX;
+                mapX += stepX;
+                side = 0;
+
+            } else {
+
+                sideDistY += deltaDistY;
+                mapY += stepY;
+                side = 1;
+
+            }
+
+            if (
+                mapX < 0 || mapX >= map[0].length ||
+                mapY < 0 || mapY >= map.length
+            ) {
+
+                hit = true;
+
+            } else if (map[mapY][mapX] === 1) {
+
+                hit = true;
+
+            }
+
+        }
+
+
+        // WALL DISTANCE
+
+        var perpWallDist;
+
+        if (side === 0) {
+
+            perpWallDist =
+                (mapX - player.x + (1 - stepX) / 2) / rayDirX;
+
+        } else {
+
+            perpWallDist =
+                (mapY - player.y + (1 - stepY) / 2) / rayDirY;
+
+        }
+
+        perpWallDist = Math.max(0.1, perpWallDist);
+
+        zBuffer[i] = perpWallDist;
+
+
+// ======================================
+// WALL HEIGHT (VARIABLE CEILING)
+// ======================================
+
+var pixelsPerUnit = (h / perpWallDist) * player.zoom;
+
+var drawStart =
+    horizon - (ceilingHeight - playerHeight) * pixelsPerUnit;
+
+var drawEnd =
+    horizon + playerHeight * pixelsPerUnit;
+
+var wallHeight = drawEnd - drawStart;
+
+        var screenY1 = Math.max(0, Math.floor(drawStart));
+        var screenY2 = Math.min(h, Math.ceil(drawEnd));
+
+        var screenHeight = screenY2 - screenY1;
+
+        if (screenHeight <= 0) continue;
+
+
+        // ======================================
+        // TEXTURE POSITION
+        // ======================================
+
+        var wallX;
+
+        if (side === 0) {
+
+            wallX = player.y + perpWallDist * rayDirY;
+
+        } else {
+
+            wallX = player.x + perpWallDist * rayDirX;
+
+        }
+
+        wallX -= Math.floor(wallX);
+
+        var texX = Math.floor(wallX * 128);
+
+        if (side === 0 && rayDirX > 0) {
+            texX = 127 - texX;
+        }
+
+        if (side === 1 && rayDirY < 0) {
+            texX = 127 - texX;
+        }
+
+        var visibleTop = Math.max(0, drawStart);
+        var visibleBottom = Math.min(h, drawEnd);
+
+        var srcY = Math.max(
+            0,
+            (visibleTop - drawStart) / wallHeight * 128
+        );
+
+        var srcBottom = Math.min(
+            128,
+            (visibleBottom - drawStart) / wallHeight * 128
+        );
+
+        var srcH = Math.max(1, srcBottom - srcY);
+
+
+        // ======================================
+// DRAW WALL (REPEATING VERTICAL TEXTURES)
+// ======================================
+
+if (wallTextureEnabled && texCanvas) {
+
+    var textureWorldY = 0;
+
+    while (textureWorldY < ceilingHeight) {
+
+        var segmentHeight = Math.min(
+            1,
+            ceilingHeight - textureWorldY
+        );
+
+        var segmentTop =
+            horizon - (ceilingHeight - playerHeight - textureWorldY)
+            * pixelsPerUnit;
+
+        var segmentBottom =
+            segmentTop + segmentHeight * pixelsPerUnit;
+
+        var sourceHeight = segmentHeight * 128;
+
+        ctx.drawImage(
+            texCanvas,
+            texX, 0, 1, sourceHeight,
+            i,
+            segmentTop,
+            1,
+            segmentBottom - segmentTop
+        );
+
+        textureWorldY += segmentHeight;
+    }
+
+    ctx.globalCompositeOperation = "multiply";
+
+    ctx.fillStyle = wallColor;
+
+    ctx.fillRect(
+        i,
+        screenY1,
+        1,
+        screenHeight
+    );
+
+    ctx.globalCompositeOperation = "source-over";
+
+
+} else {
+
+    ctx.fillStyle = wallColor;
+
+    ctx.fillRect(
+        i,
+        screenY1,
+        1,
+        screenHeight
+    );
+
+}
+
+// ======================================
+// WALL DISTANCE DARKNESS
+// ======================================
+
+if (wallDarknessEnabled && wallDarknessStrength > 0) {
+
+    // Darkness increases with distance
+    var wallDistanceDarkness = Math.max(
+        0,
+        Math.min(1, (perpWallDist - 2) / 18)
+    );
+
+    // Apply user-controlled strength
+    var darknessAmount =
+        wallDistanceDarkness * wallDarknessStrength;
+
+    // Get selected darkness color
+    var darkRGB = getRGB(wallDarknessColor);
+
+    // Blend wall with darkness color
+    var darkR = Math.round(255 * (1 - darknessAmount) + darkRGB.r * darknessAmount);
+    var darkG = Math.round(255 * (1 - darknessAmount) + darkRGB.g * darknessAmount);
+    var darkB = Math.round(255 * (1 - darknessAmount) + darkRGB.b * darknessAmount);
+
+    ctx.globalCompositeOperation = "multiply";
+
+    ctx.fillStyle =
+        "rgb(" + darkR + "," + darkG + "," + darkB + ")";
+
+    ctx.fillRect(
+        i,
+        screenY1,
+        1,
+        screenHeight
+    );
+
+    ctx.globalCompositeOperation = "source-over";
+}
+
+
+
+} // Closes the wall-rendering loop
+
+if (showCubes) {
+
+    // ======================================
+    // FLOATING COLOUR-CHANGING CUBES
+    // ======================================
+
+    var time = new Date().getTime();
+
+    var cubeColors = [
+    "#ff0000",
+    "#ffff00",
+    "#00ff00",
+    "#00ffff",
+    "#0000ff",
+    "#ff00ff"
+    ];
+
+    var activeColor =
+        cubeColors[Math.floor(time / 500) % cubeColors.length];
+
+    var floatOffset = Math.sin(time * 0.0045) * 0.15;
+
+    var visibleCubes = [];
+
+    for (var c = 0; c < cubes.length; c++) {
+
+        var cube = cubes[c];
+
+        var spriteX = cube.x - player.x;
+        var spriteY = cube.y - player.y;
+
+        var invDet = 1 / (
+            planeX * dirY - dirX * planeY
+        );
+
+        var transformX = invDet * (
+            dirY * spriteX - dirX * spriteY
+        );
+
+        var transformY = invDet * (
+            -planeY * spriteX + planeX * spriteY
+        );
+
+        if (transformY > 0.2) {
+
+            visibleCubes.push({
+                transformX: transformX,
+                transformY: transformY
+            });
+
+        }
+
+    }
+
+
+    // FAR CUBES FIRST
+
+    visibleCubes.sort(function(a, b) {
+        return b.transformY - a.transformY;
+    });
+
+
+    for (var c = 0; c < visibleCubes.length; c++) {
+
+        var transformX = visibleCubes[c].transformX;
+        var transformY = visibleCubes[c].transformY;
+
+        var spriteScreenX = Math.floor(
+            (w / 2) * (1 + transformX / transformY)
+        );
+
+        var baseSpriteHeight =
+            Math.abs(Math.floor(h / transformY)) * player.zoom;
+
+        var spriteHeight = Math.floor(baseSpriteHeight * 0.4);
+        var spriteWidth = spriteHeight;
+
+        var bobPixelOffset =
+            floatOffset * (h / transformY) * player.zoom;
+
+        var drawStartY = Math.floor(
+            horizon - spriteHeight / 2 + bobPixelOffset
+        );
+
+        var drawEndY = drawStartY + spriteHeight;
+
+        var drawStartX = Math.floor(
+            spriteScreenX - spriteWidth / 2
+        );
+
+        var drawEndX = drawStartX + spriteWidth;
+
+        ctx.fillStyle = activeColor;
+
+        for (
+            var stripe = Math.max(0, drawStartX);
+            stripe < Math.min(w, drawEndX);
+            stripe++
+        ) {
+
+            if (transformY < zBuffer[stripe]) {
+
+                var sY = Math.max(0, drawStartY);
+                var sH = Math.min(h, drawEndY) - sY;
+
+                if (sH > 0) {
+
+                    ctx.fillRect(
+                        stripe,
+                        sY,
+                        1,
+                        sH
+                    );
+
+                }
+
+            }
+
+        }
+
+    }
+
+}
+
+}
+
+// ======================================
+// GAME LOOP
+// ======================================
+
+function gameLoop() {
+
+    update();
+    renderScene();
+
+    if (mazeMapVisible) {
+        drawMazeMap();
+    }
+
+    window.requestAnimationFrame(gameLoop);
+}
+
+
+
+// ======================================
+// START GAME
+// ======================================
+
+
+gameLoop();
+
+</script>
+</body>
+</html>
